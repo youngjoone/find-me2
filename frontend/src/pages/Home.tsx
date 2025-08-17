@@ -88,6 +88,10 @@ const Home: React.FC = () => {
         </div>
       )}
       <hr />
+      <Link to="/tests">테스트 목록 보기</Link>
+      <br />
+      <Link to="/my/results">내 결과 히스토리</Link> {/* Added link to MyResults page */}
+      <br />
       <Link to="/test">테스트 시작하기</Link>
       <hr />
       <div>

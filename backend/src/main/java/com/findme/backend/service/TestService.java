@@ -3,12 +3,17 @@ package com.findme.backend.service;
 import com.findme.backend.dto.*;
 import com.findme.backend.entity.Question;
 import com.findme.backend.entity.Test;
+import com.findme.backend.entity.ResultEntity; // Import ResultEntity
 import com.findme.backend.repository.QuestionRepository;
 import com.findme.backend.repository.TestRepository;
+import com.findme.backend.repository.ResultRepository; // Import ResultRepository
+import com.findme.backend.auth.CustomOAuth2User; // Import CustomOAuth2User
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.core.context.SecurityContextHolder; // Import SecurityContextHolder
+import org.springframework.security.core.Authentication; // Import Authentication
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,6 +27,7 @@ public class TestService {
 
     private final TestRepository testRepository;
     private final QuestionRepository questionRepository;
+    private final ResultRepository resultRepository; // Inject ResultRepository
 
     @PostConstruct
     @Transactional
@@ -76,6 +82,28 @@ public class TestService {
                 "B", 100 - (normalizedScore * 0.5),
                 "C", (totalScore / (test.getQuestions().size() * 5)) * 100 * 1.2
         );
+
+        // Save result to database
+        Long userId = null;
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof CustomOAuth2User) {
+            CustomOAuth2User principal = (CustomOAuth2User) authentication.getPrincipal();
+            userId = principal.getId();
+        }
+
+        ResultEntity resultEntity = new ResultEntity(
+            null, // ID will be generated
+            userId,
+            testCode,
+            normalizedScore,
+            // Convert traits map to JSON string
+            traits.entrySet().stream()
+                .map(entry -> "\"" + entry.getKey() + "\":" + entry.getValue())
+                .collect(Collectors.joining(",", "{", "}")),
+            submission.getPoem(), // Save the generated poem from submission
+            LocalDateTime.now()
+        );
+        resultRepository.save(resultEntity);
 
         return new ResultDto(normalizedScore, traits);
     }

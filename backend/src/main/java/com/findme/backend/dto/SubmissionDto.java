@@ -11,4 +11,6 @@ public class SubmissionDto {
     @NotEmpty
     @Valid
     private List<AnswerDto> answers;
+
+    private String poem; // Added poem field
 }
