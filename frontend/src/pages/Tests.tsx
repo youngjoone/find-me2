@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import Meta from '../lib/seo'; // Import Meta component
 
 const Tests: React.FC = () => {
     // Hardcoded test for now
@@ -9,20 +10,27 @@ const Tests: React.FC = () => {
     ];
 
     return (
-        <div>
-            <h1>테스트 목록</h1>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px' }}>
-                {tests.map((test) => (
-                    <div key={test.code} style={{ border: '1px solid #ccc', padding: '15px', borderRadius: '8px', width: '250px' }}>
-                        <h2>{test.title}</h2>
-                        <p>{test.description}</p>
-                        <Link to={`/test?code=${test.code}`}>
-                            <button>시작하기</button>
-                        </Link>
-                    </div>
-                ))}
+        <>
+            <Meta
+                title="테스트 목록 — find-me"
+                description="find-me에서 제공하는 다양한 성향 테스트 목록을 확인하고 시작해보세요."
+            />
+            <div>
+                <h1>테스트 목록</h1>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px' }}>
+                    {tests.map((test) => (
+                        <div key={test.code} style={{ border: '1px solid #ccc', padding: '15px', borderRadius: '8px', width: '250px' }}>
+                            <h2>{test.title}</h2>
+                            <p>{test.description}</p>
+                            <Link to={`/test?code=${test.code}`}>
+                                <button>시작하기</button>
+                            </Link>
+                        </div>
+                    ))}
+                </div>
             </div>
-        );
-    };
+        </>
+    );
+};
 
 export default Tests;

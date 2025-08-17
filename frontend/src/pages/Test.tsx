@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import useApi from '../hooks/useApi'; // Import the new hook
-import RadioLikert from '../components/ui/FormControls/RadioLikert'; // Import RadioLikert
-import { Button } from '../components/ui/Button'; // Import Button
+import useApi from '../hooks/useApi';
+import RadioLikert from '../components/ui/FormControls/RadioLikert';
+import { Button } from '../components/ui/Button';
+import Meta from '../lib/seo'; // Import Meta component
 
 // Define types for our data
 interface Question {
@@ -36,10 +37,10 @@ interface AiResponse {
 }
 
 const Test: React.FC = () => {
-    const { fetchWithErrorHandler } = useApi(); // Get fetchWithErrorHandler from hook
+    const { fetchWithErrorHandler } = useApi();
     const [testData, setTestData] = useState<TestData | null>(null);
     const [answers, setAnswers] = useState<Record<string, number>>({});
-    const [formError, setFormError] = useState<string>(''); // This error is for form validation
+    const [formError, setFormError] = useState<string>('');
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const navigate = useNavigate();
 
@@ -119,25 +120,28 @@ const Test: React.FC = () => {
     if (isLoading && !testData) return <p>테스트를 불러오는 중...</p>;
     
     return (
-        <div>
-            <h1>{testData?.title || '테스트'}</h1>
-            {formError && <p style={{ color: 'red' }}>오류: {formError}</p>} {/* Display form validation error */}
-            <form onSubmit={handleSubmit}>
-                {testData?.questions.map((q, index) => (
-                    <div key={q.id} style={{ margin: '20px 0' }}>
-                        <p><strong>{index + 1}. {q.body}</strong></p>
-                        <RadioLikert
-                            name={q.id}
-                            value={answers[q.id] || 0} // Default to 0 if not answered
-                            onChange={(val) => handleAnswerChange(q.id, val)}
-                        />
-                    </div>
-                ))}
-                <Button type="submit" isLoading={isLoading}>
-                    제출
-                </Button>
-            </form>
-        </div>
+        <>
+            <Meta title="테스트 시작 — find-me" />
+            <div>
+                <h1>{testData?.title || '테스트'}</h1>
+                {formError && <p style={{ color: 'red' }}>오류: {formError}</p>}
+                <form onSubmit={handleSubmit}>
+                    {testData?.questions.map((q, index) => (
+                        <div key={q.id} style={{ margin: '20px 0' }}>
+                            <p><strong>{index + 1}. {q.body}</strong></p>
+                            <RadioLikert
+                                name={q.id}
+                                value={answers[q.id] || 0}
+                                onChange={(val) => handleAnswerChange(q.id, val)}
+                            />
+                        </div>
+                    ))}
+                    <Button type="submit" isLoading={isLoading}>
+                        제출
+                    </Button>
+                </form>
+            </div>
+        </>
     );
 };
 

@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import useApi from '../hooks/useApi'; // Import useApi hook
-import { Card, CardHeader, CardContent, CardFooter } from '../components/ui/Card'; // Import Card components
-import Badge from '../components/ui/Badge'; // Import Badge
-import { Button } from '../components/ui/Button'; // Import Button
-import Skeleton from '../components/ui/Skeleton'; // Import Skeleton
-import EmptyState from '../components/ui/EmptyState'; // Import EmptyState
+import useApi from '../hooks/useApi';
+import { Card, CardHeader, CardContent, CardFooter } from '../components/ui/Card';
+import Badge from '../components/ui/Badge';
+import { Button } from '../components/ui/Button';
+import Skeleton from '../components/ui/Skeleton';
+import EmptyState from '../components/ui/EmptyState';
+import Meta from '../lib/seo'; // Import Meta component
 
 interface ResultDetailData {
     id: number;
@@ -18,7 +19,7 @@ interface ResultDetailData {
 
 const ResultDetail: React.FC = () => {
     const { id } = useParams<{ id: string }>();
-    const { fetchWithErrorHandler } = useApi(); // Use useApi hook
+    const { fetchWithErrorHandler } = useApi();
     const [result, setResult] = useState<ResultDetailData | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [error, setError] = useState<string>('');
@@ -86,44 +87,53 @@ const ResultDetail: React.FC = () => {
         setError("성향 데이터를 파싱하는데 실패했습니다.");
     }
 
+    const pageTitle = `find-me 결과 #${result.id}`;
+    const pageDescription = `점수 ${result.score.toFixed(2)} | 주요 성향 A:${parsedTraits.A?.toFixed(2) || 'N/A'} B:${parsedTraits.B?.toFixed(2) || 'N/A'} C:${parsedTraits.C?.toFixed(2) || 'N/A'}`;
+
     return (
-        <div className="p-4">
-            <Card className="max-w-2xl mx-auto">
-                <CardHeader>
-                    <h1 className="text-2xl font-bold">결과 상세 보기 #{result.id}</h1>
-                </CardHeader>
-                <CardContent>
-                    <p className="text-muted-foreground"><strong>테스트 코드:</strong> {result.testCode}</p>
-                    <p className="text-muted-foreground"><strong>점수:</strong> {result.score.toFixed(2)}</p>
-                    <p className="text-muted-foreground"><strong>생성일:</strong> {new Date(result.createdAt).toLocaleString()}</p>
-                    <hr className="my-6" />
-                    <h2 className="text-xl font-semibold mb-2">당신의 성향</h2>
-                    {parsedTraits && (
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            {Object.entries(parsedTraits).map(([key, value]) => (
-                                <div key={key} className="flex items-center space-x-2">
-                                    <Badge variant="default">{key}</Badge>
-                                    <span className="text-lg">{Number(value).toFixed(2)}</span>
-                                </div>
-                            ))}
+        <>
+            <Meta
+                title={pageTitle}
+                description={pageDescription}
+            />
+            <div className="p-4">
+                <Card className="max-w-2xl mx-auto">
+                    <CardHeader>
+                        <h1 className="text-2xl font-bold">결과 상세 보기 #{result.id}</h1>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-muted-foreground"><strong>테스트 코드:</strong> {result.testCode}</p>
+                        <p className="text-muted-foreground"><strong>점수:</strong> {result.score.toFixed(2)}</p>
+                        <p className="text-muted-foreground"><strong>생성일:</strong> {new Date(result.createdAt).toLocaleString()}</p>
+                        <hr className="my-6" />
+                        <h2 className="text-xl font-semibold mb-2">당신의 성향</h2>
+                        {parsedTraits && (
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                {Object.entries(parsedTraits).map(([key, value]) => (
+                                    <div key={key} className="flex items-center space-x-2">
+                                        <Badge variant="default">{key}</Badge>
+                                        <span className="text-lg">{Number(value).toFixed(2)}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                        <hr className="my-6" />
+                        <h2 className="text-xl font-semibold mb-2">AI가 생성한 시</h2>
+                        <div className="bg-muted p-4 rounded-md whitespace-pre-wrap text-muted-foreground">
+                            {result.poem}
                         </div>
-                    )}
-                    <hr className="my-6" />
-                    <h2 className="text-xl font-semibold mb-2">AI가 생성한 시</h2>
-                    <div className="bg-muted p-4 rounded-md whitespace-pre-wrap text-muted-foreground">
-                        {result.poem}
-                    </div>
-                </CardContent>
-                <CardFooter className="flex justify-end space-x-2">
-                    <Link to={`/share/${result.id}`}>
-                        <Button>공유하기</Button>
-                    </Link>
-                    <Link to="/my/results">
-                        <Button variant="outline">목록으로</Button>
-                    </Link>
-                </CardFooter>
-            </Card>
-        </div>
+                    </CardContent>
+                    <CardFooter className="flex justify-end space-x-2">
+                        <Link to={`/share/${result.id}`}>
+                            <Button>공유하기</Button>
+                        </Link>
+                        <Link to="/my/results">
+                            <Button variant="outline">목록으로</Button>
+                        </Link>
+                    </CardFooter>
+                </Card>
+            </div>
+        </>
     );
 };
 
