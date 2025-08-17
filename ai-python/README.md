@@ -1,0 +1,1 @@
+이 디렉토리는 Python FastAPI 프로젝트입니다.
