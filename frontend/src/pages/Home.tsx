@@ -1,9 +1,42 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
 const Home: React.FC = () => {
   const [poem, setPoem] = useState<string>('');
   const [healthStatus, setHealthStatus] = useState<string>('');
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [userNickname, setUserNickname] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      const token = localStorage.getItem('jwtToken');
+      if (token) {
+        try {
+          const response = await fetch('http://localhost:8080/api/me', {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+            },
+          });
+          if (response.ok) {
+            const data = await response.json();
+            setUserEmail(data.email);
+            setUserNickname(data.nickname);
+          } else {
+            // Token might be expired or invalid
+            localStorage.removeItem('jwtToken');
+            setUserEmail(null);
+            setUserNickname(null);
+          }
+        } catch (error) {
+          console.error("Failed to fetch user info:", error);
+          localStorage.removeItem('jwtToken');
+          setUserEmail(null);
+          setUserNickname(null);
+        }
+      }
+    };
+    fetchUserInfo();
+  }, []);
 
   const handleGetPoem = async () => {
     try {
@@ -39,9 +72,29 @@ const Home: React.FC = () => {
     }
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('jwtToken');
+    setUserEmail(null);
+    setUserNickname(null);
+    alert('로그아웃 되었습니다.');
+  };
+
   return (
     <div>
       <h1>홈 페이지</h1>
+      {userEmail ? (
+        <div>
+          <p>환영합니다, {userNickname || userEmail}님!</p>
+          <button onClick={handleLogout}>로그아웃</button>
+        </div>
+      ) : (
+        <div>
+          <a href="http://localhost:8080/oauth2/authorization/google">
+            <button>Google로 로그인</button>
+          </a>
+        </div>
+      )}
+      <hr />
       <Link to="/test">테스트 시작하기</Link>
       <hr />
       <div>

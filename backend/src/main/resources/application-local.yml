@@ -14,3 +14,15 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration/h2
+  security: # Added for OAuth2
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: your-google-client-id # Replace with your actual client ID
+            client-secret: your-google-client-secret # Replace with your actual client secret
+            redirect-uri: http://localhost:8080/login/oauth2/code/google
+
+jwt: # Added for JWT
+  secret: your-jwt-secret-key-base64-encoded-at-least-256-bit # Replace with a strong, base64 encoded secret
+  expiration-minutes: 60 # Token expiration time in minutes
