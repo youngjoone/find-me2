@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import fetchWithErrorHandler from '../utils/api'; // Import the new utility
 
 const Home: React.FC = () => {
   const [poem, setPoem] = useState<string>('');
@@ -12,23 +13,18 @@ const Home: React.FC = () => {
       const token = localStorage.getItem('jwtToken');
       if (token) {
         try {
-          const response = await fetch('http://localhost:8080/api/me', {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-            },
-          });
-          if (response.ok) {
-            const data = await response.json();
-            setUserEmail(data.email);
-            setUserNickname(data.nickname);
-          } else {
-            // Token might be expired or invalid
-            localStorage.removeItem('jwtToken');
-            setUserEmail(null);
-            setUserNickname(null);
-          }
+          const data = await fetchWithErrorHandler<{ id: string, email: string, nickname: string }>(
+            'http://localhost:8080/api/me',
+            {
+              headers: {
+                'Authorization': `Bearer ${token}`,
+              },
+            }
+          );
+          setUserEmail(data.email);
+          setUserNickname(data.nickname);
         } catch (error) {
-          console.error("Failed to fetch user info:", error);
+          // fetchWithErrorHandler already handles alert/console.error
           localStorage.removeItem('jwtToken');
           setUserEmail(null);
           setUserNickname(null);
@@ -40,35 +36,32 @@ const Home: React.FC = () => {
 
   const handleGetPoem = async () => {
     try {
-      const response = await fetch('http://localhost:8000/ai/generate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ mood: '기쁨' }),
-      });
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
+      const data = await fetchWithErrorHandler<{ poem: string }>(
+        'http://localhost:8000/ai/generate',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ mood: '기쁨' }),
+        }
+      );
       setPoem(data.poem);
     } catch (error) {
-      console.error("Fetching poem failed:", error);
-      setPoem('시를 받아오는데 실패했습니다.');
+      // Error handled by fetchWithErrorHandler
+      setPoem('시를 받아오는데 실패했습니다.'); // Clear previous poem or set a default
     }
   };
 
   const handleGetHealth = async () => {
     try {
-      const response = await fetch('http://localhost:8080/api/health');
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
+      const data = await fetchWithErrorHandler<{ status: string }>(
+        'http://localhost:8080/api/health'
+      );
       setHealthStatus(JSON.stringify(data));
     } catch (error) {
-      console.error("Fetching health status failed:", error);
-      setHealthStatus('백엔드 상태를 확인하는데 실패했습니다.');
+      // Error handled by fetchWithErrorHandler
+      setHealthStatus('백엔드 상태를 확인하는데 실패했습니다.'); // Clear previous status or set a default
     }
   };
 

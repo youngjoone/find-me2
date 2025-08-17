@@ -26,3 +26,26 @@ spring:
 jwt: # Added for JWT
   secret: your-jwt-secret-key-base64-encoded-at-least-256-bit # Replace with a strong, base64 encoded secret
   expiration-minutes: 60 # Token expiration time in minutes
+
+  bucket4j: # Added for Rate Limiting
+    filters:
+      - filter-url: "/**"
+        rate-limit:
+          bandwidths:
+            - capacity: 60 # 60 requests per minute
+              time: 1 # minute
+              unit: minutes
+        http-response-body-enabled: true
+        http-response-body-json: true
+        http-response-body-json-data: |
+          {
+            "code": "RATE_LIMITED",
+            "message": "Too many requests. Please try again later.",
+            "requestId": "${X-Request-Id}",
+            "timestamp": "${T(java.time.LocalDateTime).now().format(T(java.time.format.DateTimeFormatter).ISO_INSTANT)}"
+          }
+        http-response-body-json-code: 429
+        exclude-urls:
+          - /api/health
+          - /swagger-ui/**
+          - /v3/api-docs/**

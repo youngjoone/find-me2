@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import fetchWithErrorHandler from '../utils/api'; // Import the new utility
 
 // Define types for our data
 interface Question {
@@ -18,10 +19,24 @@ interface Answer {
     value: number;
 }
 
+interface ScoreData {
+    score: number;
+    traits: Record<string, number>;
+}
+
+interface AiResponse {
+    poem?: string;
+    img_prompt?: string;
+    moderation: {
+        safe: boolean;
+        flags: string[];
+    };
+}
+
 const Test: React.FC = () => {
     const [testData, setTestData] = useState<TestData | null>(null);
     const [answers, setAnswers] = useState<Record<string, number>>({});
-    const [error, setError] = useState<string>('');
+    const [error, setError] = useState<string>(''); // This error is for form validation, not API errors
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const navigate = useNavigate();
 
@@ -29,14 +44,13 @@ const Test: React.FC = () => {
         const fetchTest = async () => {
             setIsLoading(true);
             try {
-                const response = await fetch('http://localhost:8080/api/tests/trait_v1');
-                if (!response.ok) {
-                    throw new Error('테스트 데이터를 불러오는데 실패했습니다.');
-                }
-                const data = await response.json();
+                const data = await fetchWithErrorHandler<TestData>(
+                    'http://localhost:8080/api/tests/trait_v1'
+                );
                 setTestData(data);
             } catch (err) {
-                setError(err instanceof Error ? err.message : String(err));
+                // Error handled by fetchWithErrorHandler, but we can set local error state if needed
+                // setError(err instanceof Error ? err.message : String(err));
             } finally {
                 setIsLoading(false);
             }
@@ -55,7 +69,7 @@ const Test: React.FC = () => {
             return;
         }
         
-        setError('');
+        setError(''); // Clear form validation error
         setIsLoading(true);
 
         try {
@@ -65,16 +79,14 @@ const Test: React.FC = () => {
                 value,
             }));
             
-            const scoreResponse = await fetch('http://localhost:8080/api/tests/trait_v1/submit', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ answers: submissionAnswers }),
-            });
-
-            if (!scoreResponse.ok) {
-                throw new Error('답변 제출에 실패했습니다.');
-            }
-            const scoreData = await scoreResponse.json();
+            const scoreData = await fetchWithErrorHandler<ScoreData>(
+                'http://localhost:8080/api/tests/trait_v1/submit',
+                {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ answers: submissionAnswers }),
+                }
+            );
 
             // 2. Call AI service with traits
             const aiRequestBody = {
@@ -83,22 +95,22 @@ const Test: React.FC = () => {
                 want: ["poem"]
             };
 
-            const aiResponse = await fetch('http://localhost:8000/ai/generate', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(aiRequestBody),
-            });
-
-            if (!aiResponse.ok) {
-                throw new Error('AI 시 생성에 실패했습니다.');
-            }
-            const aiData = await aiResponse.json();
+            const aiData = await fetchWithErrorHandler<AiResponse>(
+                'http://localhost:8000/ai/generate',
+                {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(aiRequestBody),
+                }
+            );
 
             // 3. Navigate to result page with data
             navigate('/result', { state: { traits: scoreData.traits, poem: aiData.poem } });
 
         } catch (err) {
-            setError(err instanceof Error ? err.message : String(err));
+            // API errors are handled by fetchWithErrorHandler
+            // This catch block is for re-thrown errors from fetchWithErrorHandler if needed
+            // setError(err instanceof Error ? err.message : String(err));
         } finally {
             setIsLoading(false);
         }
@@ -109,7 +121,7 @@ const Test: React.FC = () => {
     return (
         <div>
             <h1>{testData?.title || '테스트'}</h1>
-            {error && <p style={{ color: 'red' }}>오류: {error}</p>}
+            {error && <p style={{ color: 'red' }}>오류: {error}</p>} {/* Display form validation error */}
             <form onSubmit={handleSubmit}>
                 {testData?.questions.map((q, index) => (
                     <div key={q.id} style={{ margin: '20px 0' }}>
