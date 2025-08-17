@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import useApi from '../hooks/useApi';
 import RadioLikert from '../components/ui/FormControls/RadioLikert';
 import { Button } from '../components/ui/Button';
-import Meta from '../lib/seo'; // Import Meta component
+import Meta from '../lib/seo';
+import { track } from '../lib/analytics'; // Import track
 
 // Define types for our data
 interface Question {
@@ -45,6 +46,7 @@ const Test: React.FC = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
+        track('test_start'); // Track test start event
         const fetchTest = async () => {
             setIsLoading(true);
             try {
@@ -74,6 +76,7 @@ const Test: React.FC = () => {
         
         setFormError(''); // Clear form validation error
         setIsLoading(true);
+        track('test_submit'); // Track test submit event
 
         try {
             // 1. Submit answers to backend
@@ -98,6 +101,7 @@ const Test: React.FC = () => {
                 want: ["poem"]
             };
 
+            track('generate_request', { mood: aiRequestBody.mood.tags[0], traits: aiRequestBody.profile.traits }); // Track AI request
             const aiData = await fetchWithErrorHandler<AiResponse>(
                 'http://localhost:8000/ai/generate',
                 {
@@ -106,11 +110,13 @@ const Test: React.FC = () => {
                     body: JSON.stringify(aiRequestBody),
                 }
             );
+            track('generate_success', { poemLength: aiData.poem?.length || 0, safe: aiData.moderation.safe }); // Track AI success
 
             // 3. Navigate to result page with data
             navigate('/result', { state: { traits: scoreData.traits, poem: aiData.poem } });
 
         } catch (err) {
+            track('generate_fail', { error: err instanceof Error ? err.message : String(err) }); // Track AI fail
             // API errors are handled by fetchWithErrorHandler
         } finally {
             setIsLoading(false);

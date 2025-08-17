@@ -7,16 +7,17 @@ import Tests from './pages/Tests';
 import MyResults from './pages/MyResults';
 import ResultDetail from './pages/ResultDetail';
 import Share from './pages/Share';
-import Header from './components/Header'; // Import Header
-import { ThemeProvider } from './contexts/ThemeContext'; // Import ThemeProvider
+import AdminAnalytics from './pages/AdminAnalytics';
+import Header from './components/Header';
+import { ThemeProvider } from './contexts/ThemeContext';
 import './App.css';
 
 function App() {
   return (
-    <ThemeProvider> {/* Wrap with ThemeProvider */}
-      <div className="min-h-screen bg-background text-foreground"> {/* Apply global background/text colors */}
-        <Header /> {/* Add Header */}
-        <main className="container mx-auto p-4"> {/* Main content area */}
+    <ThemeProvider>
+      <div className="min-h-screen bg-background text-foreground flex flex-col"> {/* Added flex-col */}
+        <Header />
+        <main className="container mx-auto p-4 flex-grow"> {/* Added flex-grow */}
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/tests" element={<Tests />} />
@@ -26,8 +27,12 @@ function App() {
             <Route path="/my/results" element={<MyResults />} />
             <Route path="/my/results/:id" element={<ResultDetail />} />
             <Route path="/share/:id" element={<Share />} />
+            <Route path="/admin/analytics" element={<AdminAnalytics />} />
           </Routes>
         </main>
+        <footer className="p-4 text-center text-sm text-muted-foreground border-t border-border">
+          <p>익명 이벤트 수집(세션ID)으로 서비스 개선에 활용합니다. 개인정보는 저장하지 않습니다.</p>
+        </footer>
       </div>
     </ThemeProvider>
   );

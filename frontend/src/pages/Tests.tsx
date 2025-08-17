@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react'; // Import useEffect
 import { Link } from 'react-router-dom';
-import Meta from '../lib/seo'; // Import Meta component
+import Meta from '../lib/seo';
+import { track } from '../lib/analytics'; // Import track
 
 const Tests: React.FC = () => {
     // Hardcoded test for now
@@ -8,6 +9,10 @@ const Tests: React.FC = () => {
         { code: 'trait_v1', title: '성향 테스트 v1', description: '당신의 성향을 알아보세요.' },
         // Add more tests here if needed
     ];
+
+    useEffect(() => {
+        track('test_view'); // Track test view event
+    }, []);
 
     return (
         <>
