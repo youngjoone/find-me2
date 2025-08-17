@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import fetchWithErrorHandler from '../utils/api'; // Import the new utility
+import useApi from '../hooks/useApi'; // Import the new hook
 
 const Home: React.FC = () => {
+  const { fetchWithErrorHandler } = useApi(); // Get fetchWithErrorHandler from hook
   const [poem, setPoem] = useState<string>('');
   const [healthStatus, setHealthStatus] = useState<string>('');
   const [userEmail, setUserEmail] = useState<string | null>(null);
@@ -24,7 +25,7 @@ const Home: React.FC = () => {
           setUserEmail(data.email);
           setUserNickname(data.nickname);
         } catch (error) {
-          // fetchWithErrorHandler already handles alert/console.error
+          // Error handled by fetchWithErrorHandler
           localStorage.removeItem('jwtToken');
           setUserEmail(null);
           setUserNickname(null);
@@ -32,7 +33,7 @@ const Home: React.FC = () => {
       }
     };
     fetchUserInfo();
-  }, []);
+  }, [fetchWithErrorHandler]); // Add fetchWithErrorHandler to dependency array
 
   const handleGetPoem = async () => {
     try {
@@ -90,7 +91,7 @@ const Home: React.FC = () => {
       <hr />
       <Link to="/tests">테스트 목록 보기</Link>
       <br />
-      <Link to="/my/results">내 결과 히스토리</Link> {/* Added link to MyResults page */}
+      <Link to="/my/results">내 결과 히스토리</Link>
       <br />
       <Link to="/test">테스트 시작하기</Link>
       <hr />

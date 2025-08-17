@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import fetchWithErrorHandler from '../utils/api'; // Import the new utility
+import useApi from '../hooks/useApi'; // Import the new hook
+import RadioLikert from '../components/ui/FormControls/RadioLikert'; // Import RadioLikert
+import { Button } from '../components/ui/Button'; // Import Button
 
 // Define types for our data
 interface Question {
@@ -34,9 +36,10 @@ interface AiResponse {
 }
 
 const Test: React.FC = () => {
+    const { fetchWithErrorHandler } = useApi(); // Get fetchWithErrorHandler from hook
     const [testData, setTestData] = useState<TestData | null>(null);
     const [answers, setAnswers] = useState<Record<string, number>>({});
-    const [error, setError] = useState<string>(''); // This error is for form validation, not API errors
+    const [formError, setFormError] = useState<string>(''); // This error is for form validation
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const navigate = useNavigate();
 
@@ -49,14 +52,13 @@ const Test: React.FC = () => {
                 );
                 setTestData(data);
             } catch (err) {
-                // Error handled by fetchWithErrorHandler, but we can set local error state if needed
-                // setError(err instanceof Error ? err.message : String(err));
+                // Error handled by fetchWithErrorHandler
             } finally {
                 setIsLoading(false);
             }
         };
         fetchTest();
-    }, []);
+    }, [fetchWithErrorHandler]);
 
     const handleAnswerChange = (questionId: string, value: number) => {
         setAnswers(prev => ({ ...prev, [questionId]: value }));
@@ -65,11 +67,11 @@ const Test: React.FC = () => {
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
         if (testData && Object.keys(answers).length !== testData.questions.length) {
-            setError('모든 문항에 답변해주세요.');
+            setFormError('모든 문항에 답변해주세요.');
             return;
         }
         
-        setError(''); // Clear form validation error
+        setFormError(''); // Clear form validation error
         setIsLoading(true);
 
         try {
@@ -109,8 +111,6 @@ const Test: React.FC = () => {
 
         } catch (err) {
             // API errors are handled by fetchWithErrorHandler
-            // This catch block is for re-thrown errors from fetchWithErrorHandler if needed
-            // setError(err instanceof Error ? err.message : String(err));
         } finally {
             setIsLoading(false);
         }
@@ -121,29 +121,21 @@ const Test: React.FC = () => {
     return (
         <div>
             <h1>{testData?.title || '테스트'}</h1>
-            {error && <p style={{ color: 'red' }}>오류: {error}</p>} {/* Display form validation error */}
+            {formError && <p style={{ color: 'red' }}>오류: {formError}</p>} {/* Display form validation error */}
             <form onSubmit={handleSubmit}>
                 {testData?.questions.map((q, index) => (
                     <div key={q.id} style={{ margin: '20px 0' }}>
                         <p><strong>{index + 1}. {q.body}</strong></p>
-                        <div>
-                            {[1, 2, 3, 4, 5].map(value => (
-                                <label key={value} style={{ marginRight: '10px' }}>
-                                    <input
-                                        type="radio"
-                                        name={q.id}
-                                        value={value}
-                                        onChange={() => handleAnswerChange(q.id, value)}
-                                        required
-                                    /> {value}
-                                </label>
-                            ))}
-                        </div>
+                        <RadioLikert
+                            name={q.id}
+                            value={answers[q.id] || 0} // Default to 0 if not answered
+                            onChange={(val) => handleAnswerChange(q.id, val)}
+                        />
                     </div>
                 ))}
-                <button type="submit" disabled={isLoading}>
-                    {isLoading ? '제출 중...' : '제출'}
-                </button>
+                <Button type="submit" isLoading={isLoading}>
+                    제출
+                </Button>
             </form>
         </div>
     );
