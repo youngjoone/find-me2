@@ -3,44 +3,56 @@ package com.findme.backend.service;
 import com.findme.backend.dto.*;
 import com.findme.backend.entity.Question;
 import com.findme.backend.entity.Test;
+import com.findme.backend.repository.QuestionRepository;
+import com.findme.backend.repository.TestRepository;
 import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class TestService {
 
-    private final Map<String, Test> testStore = new ConcurrentHashMap<>();
+    private final TestRepository testRepository;
+    private final QuestionRepository questionRepository;
 
     @PostConstruct
+    @Transactional
     public void init() {
-        List<Question> questions = List.of(
-                new Question("Q1", "나는 새로운 사람들을 만나는 것을 즐긴다.", false),
-                new Question("Q2", "나는 혼자 시간을 보내면 에너지가 고갈된다.", true), // Reverse
-                new Question("Q3", "나는 대화의 중심에 있는 것을 좋아한다.", false),
-                new Question("Q4", "나는 계획을 세우고 따르는 것을 선호한다.", false),
-                new Question("Q5", "나는 즉흥적인 활동을 즐긴다.", false)
-        );
-        Test test = new Test("trait_v1", "성향 테스트 v1", questions);
-        testStore.put(test.getCode(), test);
+        // Check if test already exists to prevent re-insertion on every app restart
+        if (testRepository.findByCode("trait_v1").isEmpty()) {
+            Test test = new Test("trait_v1", "성향 테스트 v1", 1, LocalDateTime.now());
+            testRepository.save(test);
+
+            List<Question> questions = List.of(
+                    new Question("Q1", test, "나는 새로운 사람들을 만나는 것을 즐긴다.", false),
+                    new Question("Q2", test, "나는 혼자 시간을 보내면 에너지가 고갈된다.", true), // Reverse
+                    new Question("Q3", test, "나는 대화의 중심에 있는 것을 좋아한다.", false),
+                    new Question("Q4", test, "나는 계획을 세우고 따르는 것을 선호한다.", false),
+                    new Question("Q5", test, "나는 즉흥적인 활동을 즐긴다.", false)
+            );
+            questionRepository.saveAll(questions);
+        }
     }
 
     public Optional<TestResponseDto> getTestByCode(String testCode) {
-        return Optional.ofNullable(testStore.get(testCode)).map(this::convertToTestResponseDto);
+        return testRepository.findByCode(testCode)
+                .map(this::convertToTestResponseDto);
     }
 
+    @Transactional
     public ResultDto calculateResult(String testCode, SubmissionDto submission) {
-        Test test = testStore.get(testCode);
-        if (test == null) {
-            throw new IllegalArgumentException("Test not found: " + testCode);
-        }
+        Test test = testRepository.findByCode(testCode)
+                .orElseThrow(() -> new IllegalArgumentException("Test not found: " + testCode));
 
-        Map<String, Question> questionMap = test.getQuestions().stream()
+        Map<String, Question> questionMap = questionRepository.findByTest(test).stream()
                 .collect(Collectors.toMap(Question::getId, q -> q));
 
         double totalScore = 0;
@@ -69,7 +81,8 @@ public class TestService {
     }
 
     private TestResponseDto convertToTestResponseDto(Test test) {
-        List<QuestionDto> questionDtos = test.getQuestions().stream()
+        // Fetch questions eagerly for DTO conversion
+        List<QuestionDto> questionDtos = questionRepository.findByTest(test).stream()
                 .map(q -> new QuestionDto(q.getId(), q.getBody()))
                 .collect(Collectors.toList());
         return new TestResponseDto(test.getCode(), test.getTitle(), questionDtos);
