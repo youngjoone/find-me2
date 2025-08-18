@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { Helmet, HelmetProvider } from 'react-helmet-async'; // Import Helmet and HelmetProvider
-import fetchWithErrorHandler from '../utils/api';
+import { Helmet, HelmetProvider } from 'react-helmet-async';
+import useApi from '../hooks/useApi'; // Import useApi hook
+import Skeleton from '../components/ui/Skeleton';
+import EmptyState from '../components/ui/EmptyState';
+import { Card, CardHeader, CardContent } from '../components/ui/Card';
+import Badge from '../components/ui/Badge';
+import Meta from '../lib/seo'; // Import Meta component
 
 interface ResultDetailData {
     id: number;
@@ -14,6 +19,7 @@ interface ResultDetailData {
 
 const Share: React.FC = () => {
     const { id } = useParams<{ id: string }>();
+    const { fetchWithErrorHandler } = useApi(); // Use useApi hook
     const [result, setResult] = useState<ResultDetailData | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [error, setError] = useState<string>('');
@@ -33,11 +39,45 @@ const Share: React.FC = () => {
             }
         };
         fetchResult();
-    }, [id]);
+    }, [id, fetchWithErrorHandler]);
 
-    if (isLoading) return <p>공유 정보를 불러오는 중...</p>;
-    if (error) return <p style={{ color: 'red' }}>오류: {error}</p>;
-    if (!result) return <p>공유 정보를 찾을 수 없습니다.</p>;
+    if (isLoading) {
+        return (
+            <div className="p-4">
+                <Card className="max-w-2xl mx-auto">
+                    <CardHeader>
+                        <Skeleton className="h-6 w-1/2 mb-2" />
+                    </CardHeader>
+                    <CardContent>
+                        <Skeleton className="h-4 w-full mb-2" />
+                        <Skeleton className="h-4 w-full mb-2" />
+                        <Skeleton className="h-4 w-3/4 mb-4" />
+                        <Skeleton className="h-24 w-full" />
+                    </CardContent>
+                </Card>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <EmptyState
+                title="공유 정보를 불러오는데 실패했습니다."
+                description={error}
+                icon="⚠️"
+            />
+        );
+    }
+
+    if (!result) {
+        return (
+            <EmptyState
+                title="공유 정보를 찾을 수 없습니다."
+                description="해당 ID의 공유 정보가 존재하지 않습니다."
+                icon="🔍"
+            />
+        );
+    }
 
     let parsedTraits: { [key: string]: number } = {};
     try {
@@ -49,43 +89,51 @@ const Share: React.FC = () => {
 
     const ogTitle = `find-me 결과 #${result.id}`;
     const ogDescription = `점수 ${result.score.toFixed(2)} | 주요 성향 A:${parsedTraits.A?.toFixed(2) || 'N/A'} B:${parsedTraits.B?.toFixed(2) || 'N/A'} C:${parsedTraits.C?.toFixed(2) || 'N/A'}`;
-    const ogImage = "https://via.placeholder.com/1200x630.png?text=FindMe+Result"; // Placeholder image URL
+    const ogImage = `${window.location.origin}/og/base.png`; // Placeholder image URL
 
     return (
         <HelmetProvider>
-            <Helmet>
-                <title>{ogTitle}</title>
-                <meta property="og:title" content={ogTitle} />
-                <meta property="og:description" content={ogDescription} />
-                <meta property="og:image" content={ogImage} />
-                <meta property="og:url" content={window.location.href} />
-                <meta property="og:type" content="website" />
-                {/* Add Twitter Card tags if needed */}
-                <meta name="twitter:card" content="summary_large_image" />
-                <meta name="twitter:title" content={ogTitle} />
-                <meta name="twitter:description" content={ogDescription} />
-                <meta name="twitter:image" content={ogImage} />
-            </Helmet>
-            <div>
-                <h1>공유 카드 미리보기</h1>
-                <p>이 페이지는 주로 SNS 공유 시 미리보기 이미지와 텍스트를 제공하기 위한 메타 태그를 포함합니다.</p>
-                <p>실제 사용자에게는 결과 상세 페이지로 리디렉션될 수 있습니다.</p>
-                <hr />
-                <h2>결과 요약</h2>
-                <p><strong>테스트 코드:</strong> {result.testCode}</p>
-                <p><strong>점수:</strong> {result.score.toFixed(2)}</p>
-                <p><strong>생성일:</strong> {new Date(result.createdAt).toLocaleString()}</p>
-                {parsedTraits && (
-                    <ul>
-                        {Object.entries(parsedTraits).map(([key, value]) => (
-                            <li key={key}>{key}: {Number(value).toFixed(2)}</li>
-                        ))}
-                    </ul>
-                )}
-                <h2>AI가 생성한 시</h2>
-                <p style={{ whiteSpace: 'pre-wrap', background: '#f0f0f0', padding: '15px' }}>
-                    {result.poem}
-                </p>
+            <Meta
+                ogTitle={ogTitle}
+                ogDescription={ogDescription}
+                ogImage={ogImage}
+                ogUrl={window.location.href}
+                ogType="website"
+                twitterCard="summary_large_image"
+                twitterTitle={ogTitle}
+                twitterDescription={ogDescription}
+                twitterImage={ogImage}
+            />
+            <div className="p-4">
+                <Card className="max-w-2xl mx-auto">
+                    <CardHeader>
+                        <h1 className="text-2xl font-bold">공유 카드 미리보기</h1>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-muted-foreground">이 페이지는 주로 SNS 공유 시 미리보기 이미지와 텍스트를 제공하기 위한 메타 태그를 포함합니다.</p>
+                        <p className="text-muted-foreground">실제 사용자에게는 결과 상세 페이지로 리디렉션될 수 있습니다.</p>
+                        <hr className="my-6" />
+                        <h2 className="text-xl font-semibold mb-2">결과 요약</h2>
+                        <p className="text-muted-foreground"><strong>테스트 코드:</strong> {result.testCode}</p>
+                        <p className="text-muted-foreground"><strong>점수:</strong> {result.score.toFixed(2)}</p>
+                        <p className="text-muted-foreground"><strong>생성일:</strong> {new Date(result.createdAt).toLocaleString()}</p>
+                        {parsedTraits && (
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                {Object.entries(parsedTraits).map(([key, value]) => (
+                                    <div key={key} className="flex items-center space-x-2">
+                                        <Badge variant="default">{key}</Badge>
+                                        <span className="text-lg">{Number(value).toFixed(2)}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                        <hr className="my-6" />
+                        <h2 className="text-xl font-semibold mb-2">AI가 생성한 시</h2>
+                        <div className="bg-muted p-4 rounded-md whitespace-pre-wrap text-muted-foreground">
+                            {result.poem}
+                        </div>
+                    </CardContent>
+                </Card>
             </div>
         </HelmetProvider>
     );
