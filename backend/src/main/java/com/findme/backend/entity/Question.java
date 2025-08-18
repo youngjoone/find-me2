@@ -18,16 +18,11 @@ public class Question {
     @JoinColumn(name = "test_code", nullable = false)
     private Test test;
 
+    @Lob
     private String body;
 
     @Column(name = "is_reverse")
     private boolean reverse;
 
-    // Custom constructor for initial data
-    public Question(String id, Test test, String body, boolean reverse) {
-        this.id = id;
-        this.test = test;
-        this.body = body;
-        this.reverse = reverse;
-    }
+    
 }
