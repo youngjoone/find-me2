@@ -27,7 +27,7 @@ public class TestService {
 
     private final TestRepository testRepository;
     private final QuestionRepository questionRepository;
-    private final ResultRepository resultRepository; // Inject ResultRepository
+    private final ResultRepository resultRepository;
 
     @PostConstruct
     @Transactional
@@ -105,7 +105,7 @@ public class TestService {
         );
         resultRepository.save(resultEntity);
 
-        return new ResultDto(normalizedScore, traits);
+        return new ResultDto(resultEntity.getId(), normalizedScore, traits);
     }
 
     private TestResponseDto convertToTestResponseDto(Test test) {

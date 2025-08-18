@@ -1,7 +1,8 @@
 package com.findme.backend.controller;
 
-import com.findme.backend.filter.RequestIdFilter; // Import RequestIdFilter
-import jakarta.servlet.http.HttpServletRequest; // Import HttpServletRequest
+import com.findme.backend.filter.RequestIdFilter;
+import com.findme.backend.exception.PaymentRequiredException; // Import PaymentRequiredException
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -47,6 +48,14 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(PaymentRequiredException.class)
+    public ResponseEntity<Map<String, Object>> handlePaymentRequiredException(PaymentRequiredException ex, HttpServletRequest request) {
+        return new ResponseEntity<>(
+                buildErrorResponse("PAYMENT_REQUIRED", ex.getMessage(), request),
+                HttpStatus.PAYMENT_REQUIRED
+        );
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGenericException(Exception ex, HttpServletRequest request) {
         return new ResponseEntity<>(
@@ -55,4 +64,3 @@ public class GlobalExceptionHandler {
         );
     }
 }
-

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useTheme } from '../contexts/ThemeContext'; // Import useTheme
-import { Button } from './ui/Button'; // Import Button
+import { useTheme } from '../contexts/ThemeContext';
+import { Button } from './ui/Button';
 
 const Header: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
@@ -14,6 +14,7 @@ const Header: React.FC = () => {
       <nav className="flex items-center space-x-4">
         <Link to="/tests" className="hover:text-primary">테스트</Link>
         <Link to="/my/results" className="hover:text-primary">내 결과</Link>
+        <Link to="/me/entitlements" className="hover:text-primary">내 권한</Link> {/* Added link to entitlements */}
         <Button variant="ghost" size="sm" onClick={toggleTheme}>
           {theme === 'light' ? '🌙 Dark' : '☀️ Light'}
         </Button>

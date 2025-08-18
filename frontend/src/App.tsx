@@ -8,6 +8,7 @@ import MyResults from './pages/MyResults';
 import ResultDetail from './pages/ResultDetail';
 import Share from './pages/Share';
 import AdminAnalytics from './pages/AdminAnalytics';
+import MyEntitlements from './pages/MyEntitlements'; // Import MyEntitlements page
 import Header from './components/Header';
 import { ThemeProvider } from './contexts/ThemeContext';
 import './App.css';
@@ -15,9 +16,9 @@ import './App.css';
 function App() {
   return (
     <ThemeProvider>
-      <div className="min-h-screen bg-background text-foreground flex flex-col"> {/* Added flex-col */}
+      <div className="min-h-screen bg-background text-foreground flex flex-col">
         <Header />
-        <main className="container mx-auto p-4 flex-grow"> {/* Added flex-grow */}
+        <main className="container mx-auto p-4 flex-grow">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/tests" element={<Tests />} />
@@ -28,6 +29,7 @@ function App() {
             <Route path="/my/results/:id" element={<ResultDetail />} />
             <Route path="/share/:id" element={<Share />} />
             <Route path="/admin/analytics" element={<AdminAnalytics />} />
+            <Route path="/me/entitlements" element={<MyEntitlements />} /> {/* Add MyEntitlements route */}
           </Routes>
         </main>
         <footer className="p-4 text-center text-sm text-muted-foreground border-t border-border">
