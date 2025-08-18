@@ -72,8 +72,9 @@ const AdminAnalytics: React.FC = () => {
                         <Skeleton className="h-4 w-3/4" />
                     </CardContent>
                 </Card>
-            );
-        }
+            </div>
+        );
+    }
 
     if (error) {
         return (
