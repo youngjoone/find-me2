@@ -47,8 +47,9 @@ const MyEntitlements: React.FC = () => {
                         <Skeleton className="h-4 w-full" />
                     </CardContent>
                 </Card>
-            );
-        }
+            </div>
+        );
+    }
 
     if (error) {
         return (
