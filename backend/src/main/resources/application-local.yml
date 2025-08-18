@@ -49,3 +49,6 @@ jwt: # Added for JWT
           - /api/health
           - /swagger-ui/**
           - /v3/api-docs/**
+
+admin: # Added for Admin API
+  token: your-admin-secret-token # Replace with a strong secret token for admin access
