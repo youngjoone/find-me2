@@ -43,6 +43,7 @@ public class SecurityConfig {
                 .requestMatchers(mvcMatcherBuilder.pattern("/h2-console/**")).permitAll()
                 .requestMatchers(mvcMatcherBuilder.pattern("/swagger-ui/**")).permitAll()
                 .requestMatchers(mvcMatcherBuilder.pattern("/v3/api-docs/**")).permitAll()
+                .requestMatchers(mvcMatcherBuilder.pattern("/api/auth/login")).permitAll() // Allow custom login
                 .anyRequest().authenticated()
             )
             .oauth2Login(oauth2 -> oauth2

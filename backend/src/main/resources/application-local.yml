@@ -19,12 +19,19 @@ spring:
       client:
         registration:
           google:
-            client-id: your-google-client-id # Replace with your actual client ID
-            client-secret: your-google-client-secret # Replace with your actual client secret
-            redirect-uri: http://localhost:8080/login/oauth2/code/google
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            scope:
+              - openid
+              - profile
+              - email
+          provider:
+            google:
+              issuer-uri: https://accounts.google.com
 
 jwt: # Added for JWT
-  secret: your-jwt-secret-key-base64-encoded-at-least-256-bit # Replace with a strong, base64 encoded secret
+  secret: BmJKbUWK9LaVPT2mZCGkUDk7QsBQkUIGmGZBBOPUwXU= # Replace with a strong, base64 encoded secret
   expiration-minutes: 60 # Token expiration time in minutes
 
   bucket4j: # Added for Rate Limiting
@@ -52,3 +59,10 @@ jwt: # Added for JWT
 
 admin: # Added for Admin API
   token: ${ADMIN_TOKEN:dev-admin-token} # Externalized to environment variable
+
+logging:
+  level:
+    root: DEBUG
+    org.springframework.web: DEBUG
+    org.springframework.security.oauth2: DEBUG
+    org.springframework.web.client: DEBUG
