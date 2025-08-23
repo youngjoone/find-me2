@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'; // Import useEffect
 import { Link } from 'react-router-dom';
-import Meta from '../lib/seo';
-import { track } from '../lib/analytics'; // Import track
+import Meta from '@/lib/seo';
+import { track } from '@/lib/analytics';
 
 const Tests: React.FC = () => {
     // Hardcoded test for now

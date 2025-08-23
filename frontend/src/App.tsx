@@ -1,18 +1,19 @@
 import { Routes, Route } from 'react-router-dom';
-import Home from './pages/Home';
-import Test from './pages/Test';
-import Result from './pages/Result';
-import AuthCallback from './pages/AuthCallback';
-import Tests from './pages/Tests';
-import MyResults from './pages/MyResults';
-import ResultDetail from './pages/ResultDetail';
-import Share from './pages/Share';
-import AdminAnalytics from './pages/AdminAnalytics';
-import MyEntitlements from './pages/MyEntitlements'; // Import MyEntitlements page
-import AdminTests from './pages/AdminTests'; // Import AdminTests page
-import Header from './components/Header';
-import { ThemeProvider } from './contexts/ThemeContext';
-import './App.css';
+import Home from '@/pages/Home';
+import Test from '@/pages/Test';
+import Result from '@/pages/Result';
+import AuthCallback from '@/pages/AuthCallback';
+import Tests from '@/pages/Tests';
+import MyResults from '@/pages/MyResults';
+import ResultDetail from '@/pages/ResultDetail';
+import Share from '@/pages/Share';
+import AdminAnalytics from '@/pages/AdminAnalytics';
+import MyEntitlements from '@/pages/MyEntitlements';
+import AdminTests from '@/pages/AdminTests';
+import Signup from '@/pages/Signup';
+import Header from '@/components/Header';
+import { ThemeProvider } from '@/contexts/ThemeContext';
+import '@/App.css';
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
             <Route path="/admin/analytics" element={<AdminAnalytics />} />
             <Route path="/me/entitlements" element={<MyEntitlements />} />
             <Route path="/admin/tests" element={<AdminTests />} /> {/* Add AdminTests route */}
+            <Route path="/signup" element={<Signup />} />
           </Routes>
         </main>
         <footer className="p-4 text-center text-sm text-muted-foreground border-t border-border">

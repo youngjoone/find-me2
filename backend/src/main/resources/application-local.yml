@@ -33,6 +33,7 @@ spring:
 jwt: # Added for JWT
   secret: BmJKbUWK9LaVPT2mZCGkUDk7QsBQkUIGmGZBBOPUwXU= # Replace with a strong, base64 encoded secret
   expiration-minutes: 60 # Token expiration time in minutes
+  refresh-expiration-minutes: 10080 # 7 days (10080 minutes)
 
   bucket4j: # Added for Rate Limiting
     filters:

@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import useApi from '../hooks/useApi';
-import RadioLikert from '../components/ui/FormControls/RadioLikert';
-import Button from '../components/ui/Button'; // Corrected import for Button
-import Meta from '../lib/seo';
-import { track } from '../lib/analytics'; // Import track
+import useApi from '@/hooks/useApi';
+import RadioLikert from '@/components/ui/FormControls/RadioLikert';
+import Button from '@/components/ui/Button';
+import Meta from '@/lib/seo';
+import { track } from '@/lib/analytics';
 
 // Define types for our data
 interface Question {

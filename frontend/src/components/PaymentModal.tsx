@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import Modal from './ui/Modal';
-import { Button } from './ui/Button';
-import { Card, CardHeader, CardContent, CardFooter } from './ui/Card';
-import { useToast } from './ui/ToastProvider';
-import useApi from '../hooks/useApi';
+import Modal from '@/components/ui/Modal';
+import Button from '@/components/ui/Button';
+import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/Card';
+import { useToast } from '@/components/ui/ToastProvider';
+import useApi from '@/hooks/useApi';
 
 interface PaymentModalProps {
   isOpen: boolean;

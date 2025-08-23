@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import useApi from '../hooks/useApi';
-import { Card, CardHeader, CardContent } from '../components/ui/Card';
-import Skeleton from '../components/ui/Skeleton';
-import EmptyState from '../components/ui/EmptyState';
-import Meta from '../lib/seo';
+import useApi from '@/hooks/useApi';
+import { Card, CardContent } from '@/components/ui/Card';
+import Skeleton from '@/components/ui/Skeleton';
+import EmptyState from '@/components/ui/EmptyState';
+import Meta from '@/lib/seo';
 
 interface EntitlementItem {
     itemCode: string;

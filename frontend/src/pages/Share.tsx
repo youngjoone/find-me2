@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { Helmet, HelmetProvider } from 'react-helmet-async';
-import useApi from '../hooks/useApi'; // Import useApi hook
-import Skeleton from '../components/ui/Skeleton';
-import EmptyState from '../components/ui/EmptyState';
-import { Card, CardHeader, CardContent } from '../components/ui/Card';
-import Badge from '../components/ui/Badge';
-import Meta from '../lib/seo'; // Import Meta component
+import { HelmetProvider } from 'react-helmet-async';
+import useApi from '@/hooks/useApi';
+import Skeleton from '@/components/ui/Skeleton';
+import EmptyState from '@/components/ui/EmptyState';
+import { Card, CardHeader, CardContent } from '@/components/ui/Card';
+import Badge from '@/components/ui/Badge';
+import Meta from '@/lib/seo';
 
 interface ResultDetailData {
     id: number;
@@ -89,7 +89,7 @@ const Share: React.FC = () => {
 
     const ogTitle = `find-me 결과 #${result.id}`;
     const ogDescription = `점수 ${result.score.toFixed(2)} | 주요 성향 A:${parsedTraits.A?.toFixed(2) || 'N/A'} B:${parsedTraits.B?.toFixed(2) || 'N/A'} C:${parsedTraits.C?.toFixed(2) || 'N/A'}`;
-    const ogImage = `${window.location.origin}/og/base.png`; // Placeholder image URL
+    const ogImage = `http://localhost:8080/og/${id}.png`; // Dynamic OG image URL
 
     return (
         <HelmetProvider>

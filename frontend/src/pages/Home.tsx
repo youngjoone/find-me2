@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import useApi from '../hooks/useApi';
-import Meta from '../lib/seo'; // Import Meta component
+import useApi from '@/hooks/useApi';
+import Meta from '@/lib/seo';
 
 const Home: React.FC = () => {
   const { fetchWithErrorHandler } = useApi();
@@ -9,31 +9,54 @@ const Home: React.FC = () => {
   const [healthStatus, setHealthStatus] = useState<string>('');
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [userNickname, setUserNickname] = useState<string | null>(null);
+  const [localJwtToken, setLocalJwtToken] = useState<string | null>(null); // New state
+
+  useEffect(() => {
+    // Update localJwtToken whenever localStorage changes (e.g., after login/logout)
+    const handleStorageChange = () => {
+      setLocalJwtToken(localStorage.getItem('jwtToken'));
+    };
+    window.addEventListener('storage', handleStorageChange); // Listen for changes in other tabs/windows
+    setLocalJwtToken(localStorage.getItem('jwtToken')); // Initial load
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []); // Run once on mount
 
   useEffect(() => {
     const fetchUserInfo = async () => {
-      const token = localStorage.getItem('jwtToken');
-      if (token) {
+      if (localJwtToken) { // Use the state variable
         try {
           const data = await fetchWithErrorHandler<{ id: string, email: string, nickname: string }>(
             'http://localhost:8080/api/me',
-            {
+            { // Explicitly pass headers
               headers: {
-                'Authorization': `Bearer ${token}`,
+                'Authorization': `Bearer ${localJwtToken}`,
               },
             }
           );
           setUserEmail(data.email);
           setUserNickname(data.nickname);
         } catch (error) {
-          localStorage.removeItem('jwtToken');
+          // Only remove token if it's a specific authentication error (e.g., 401)
+          // For now, let's just log and not remove the token automatically
+          // The useApi hook already handles general network errors and toasts
+          console.error('Failed to fetch user info:', error);
+          // If it's a 401, consider redirecting to login or clearing token
+          // For now, let's keep the token and let the user try again or log out manually
+          // localStorage.removeItem('jwtToken'); // REMOVED
           setUserEmail(null);
           setUserNickname(null);
         }
+      } else {
+        // No token, clear user info
+        setUserEmail(null);
+        setUserNickname(null);
       }
     };
     fetchUserInfo();
-  }, [fetchWithErrorHandler]);
+  }, [fetchWithErrorHandler, localJwtToken]); // <--- Changed dependency
 
   const handleGetPoem = async () => {
     try {

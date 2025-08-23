@@ -24,6 +24,9 @@ public class JwtProvider {
     @Value("${jwt.expiration-minutes}")
     private long expirationMinutes;
 
+    @Value("${jwt.refresh-expiration-minutes}") // New property
+    private long refreshExpirationMinutes; // New field
+
     private SecretKey getSigningKey() {
         byte[] keyBytes = Decoders.BASE64.decode(secret);
         return Keys.hmacShaKeyFor(keyBytes);
@@ -34,11 +37,25 @@ public class JwtProvider {
         return createToken(claims, subject);
     }
 
+    public String generateRefreshToken(String subject) {
+        Map<String, Object> claims = new HashMap<>();
+        return createRefreshToken(claims, subject);
+    }
+
     private String createToken(Map<String, Object> claims, String subject) {
         return Jwts.builder()
                 .subject(subject)
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + expirationMinutes * 60 * 1000)) // Convert minutes to milliseconds
+                .signWith(getSigningKey(), Jwts.SIG.HS256)
+                .compact();
+    }
+
+    private String createRefreshToken(Map<String, Object> claims, String subject) {
+        return Jwts.builder()
+                .subject(subject)
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + refreshExpirationMinutes * 60 * 1000))
                 .signWith(getSigningKey(), Jwts.SIG.HS256)
                 .compact();
     }

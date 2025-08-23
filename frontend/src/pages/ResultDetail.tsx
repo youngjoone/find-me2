@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import useApi from '../hooks/useApi';
-import { Card, CardHeader, CardContent, CardFooter } from '../components/ui/Card';
-import Badge from '../components/ui/Badge';
-import { Button } from '../components/ui/Button';
-import Skeleton from '../components/ui/Skeleton';
-import EmptyState from '../components/ui/EmptyState';
-import Meta from '../lib/seo'; // Import Meta component
+import useApi from '@/hooks/useApi';
+import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/Card';
+import Badge from '@/components/ui/Badge';
+import Button from '@/components/ui/Button';
+import Skeleton from '@/components/ui/Skeleton';
+import EmptyState from '@/components/ui/EmptyState';
+import Meta from '@/lib/seo';
 
 interface ResultDetailData {
     id: number;

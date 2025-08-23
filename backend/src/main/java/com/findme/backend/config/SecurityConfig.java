@@ -44,6 +44,8 @@ public class SecurityConfig {
                 .requestMatchers(mvcMatcherBuilder.pattern("/swagger-ui/**")).permitAll()
                 .requestMatchers(mvcMatcherBuilder.pattern("/v3/api-docs/**")).permitAll()
                 .requestMatchers(mvcMatcherBuilder.pattern("/api/auth/login")).permitAll() // Allow custom login
+                .requestMatchers(mvcMatcherBuilder.pattern("/api/auth/refresh")).permitAll() // Allow token refresh
+                .requestMatchers(mvcMatcherBuilder.pattern("/api/auth/signup")).permitAll()
                 .anyRequest().authenticated()
             )
             .oauth2Login(oauth2 -> oauth2

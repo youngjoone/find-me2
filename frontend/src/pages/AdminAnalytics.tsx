@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import useApi from '../hooks/useApi';
-import { Card, CardHeader, CardContent } from '../components/ui/Card';
-import { Input } from '../components/ui/FormControls/Input';
-import { Button } from '../components/ui/Button';
-import Skeleton from '../components/ui/Skeleton';
-import EmptyState from '../components/ui/EmptyState';
-import Meta from '../lib/seo';
+import useApi from '@/hooks/useApi';
+import { Card, CardHeader, CardContent } from '@/components/ui/Card';
+import Input from '@/components/ui/FormControls/Input';
+import Button from '@/components/ui/Button';
+import Skeleton from '@/components/ui/Skeleton';
+import EmptyState from '@/components/ui/EmptyState';
+import Meta from '@/lib/seo';
 
 interface AnalyticsSummary {
     totals: { [key: string]: number };

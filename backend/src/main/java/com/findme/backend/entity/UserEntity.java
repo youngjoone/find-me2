@@ -24,6 +24,12 @@ public class UserEntity {
 
     private String nickname;
 
+    @Column(name = "password_hash")
+    private String passwordHash;
+
+    @Column(name = "email_verified")
+    private boolean emailVerified;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 }

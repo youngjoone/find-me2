@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import useApi from '../hooks/useApi'; // Use useApi hook
-import { Card, CardContent } from '../components/ui/Card'; // Import Card components
-import Skeleton from '../components/ui/Skeleton'; // Import Skeleton
-import EmptyState from '../components/ui/EmptyState'; // Import EmptyState
+import { Link, useNavigate } from 'react-router-dom';
+import useApi from '@/hooks/useApi';
+import { Card, CardContent } from '@/components/ui/Card';
+import Skeleton from '@/components/ui/Skeleton';
+import EmptyState from '@/components/ui/EmptyState';
 
 interface ResultListItem {
     id: number;
@@ -18,7 +18,15 @@ interface PaginatedResponse<T> {
 }
 
 const MyResults: React.FC = () => {
+    const navigate = useNavigate(); // Initialize useNavigate
     const { fetchWithErrorHandler } = useApi(); // Use useApi hook
+
+    useEffect(() => {
+        const token = localStorage.getItem('jwtToken');
+        if (!token) {
+            navigate('/'); // Redirect to home if not logged in
+        }
+    }, [navigate]);
     const [results, setResults] = useState<ResultListItem[]>([]);
     const [nextPage, setNextPage] = useState<number>(0);
     const [hasMore, setHasMore] = useState<boolean>(true);

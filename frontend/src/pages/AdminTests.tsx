@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import useApi from '../hooks/useApi';
-import { Card, CardHeader, CardContent, CardFooter } from '../components/ui/Card';
-import { Input } from '../components/ui/FormControls/Input';
-import { Button } from '../components/ui/Button';
-import { useToast } from '../components/ui/ToastProvider';
-import Meta from '../lib/seo';
-import Modal from '../components/ui/Modal'; // Import Modal
-import Skeleton from '../components/ui/Skeleton'; // Import Skeleton
-import EmptyState from '../components/ui/EmptyState'; // Import EmptyState
-import Badge from '../components/ui/Badge'; // Import Badge
+import useApi from '@/hooks/useApi';
+import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/Card';
+import Input from '@/components/ui/FormControls/Input';
+import Button from '@/components/ui/Button';
+import { useToast } from '@/components/ui/ToastProvider';
+import Meta from '@/lib/seo';
+import Modal from '@/components/ui/Modal';
+import Skeleton from '@/components/ui/Skeleton';
+import EmptyState from '@/components/ui/EmptyState';
+import Badge from '@/components/ui/Badge';
 
 interface TestDefImportRequest {
     code: string;
@@ -66,8 +66,8 @@ const AdminTests: React.FC = () => {
     // Detail modal state
     const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
     const [selectedTestDef, setSelectedTestDef] = useState<TestDefResponse | null>(null);
-    const [isDetailLoading, setIsDetailLoading] = useState(false);
-    const [detailError, setDetailError] = useState('');
+    const [_isDetailLoading, setIsDetailLoading] = useState(false);
+    const [_detailError, setDetailError] = useState('');
 
     useEffect(() => {
         const params = new URLSearchParams(location.search);
@@ -110,7 +110,18 @@ const AdminTests: React.FC = () => {
 
     const handleImportChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
-        setImportForm(prev => ({ ...prev, [name]: name === 'version' ? parseInt(value) : value }));
+
+        setImportForm(prev => {
+            const updatedState = { ...prev };
+
+            if (name === 'version') {
+                updatedState.version = parseInt(value, 10) || 1;
+            } else if (name === 'code' || name === 'title' || name === 'questions' || name === 'scoring') {
+                updatedState[name] = value;
+            }
+
+            return updatedState;
+        });
     };
 
     const handleImportSubmit = async (e: React.FormEvent) => {
@@ -326,8 +337,9 @@ const AdminTests: React.FC = () => {
                         </Card>
                     </Modal>
                 )}
-            </>
-        );
-    };
+            </div>
+        </>
+    );
+}
 
 export default AdminTests;

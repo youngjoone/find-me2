@@ -1,8 +1,8 @@
 import React from 'react';
 import { useLocation, Link } from 'react-router-dom';
-import { Card, CardHeader, CardContent, CardFooter } from '../components/ui/Card'; // Import Card components
-import Badge from '../components/ui/Badge'; // Import Badge
-import { Button } from '../components/ui/Button'; // Import Button
+import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/Card';
+import Badge from '@/components/ui/Badge';
+import Button from '@/components/ui/Button';
 
 const Result: React.FC = () => {
     const location = useLocation();

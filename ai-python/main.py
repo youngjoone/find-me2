@@ -72,7 +72,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
     return common_error_response(
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
         code="VALIDATION_ERROR",
-        message=f"Invalid input: {\'; \'.join(messages)}",
+        message=f"Invalid input: {'; '.join(messages)}",
         request=request
     )
 
