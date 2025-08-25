@@ -1,5 +1,6 @@
 package com.findme.backend.config;
 
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import com.findme.backend.filter.JwtAuthFilter;
 import com.findme.backend.filter.RequestIdFilter; // Import RequestIdFilter
 import com.findme.backend.auth.OAuth2SuccessHandler;
@@ -27,6 +28,7 @@ public class SecurityConfig {
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
     private final JwtAuthFilter jwtAuthFilter;
     private final RequestIdFilter requestIdFilter; // Inject RequestIdFilter
+    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint; // Inject JwtAuthenticationEntryPoint
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, HandlerMappingIntrospector introspector) throws Exception {
@@ -35,6 +37,7 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .formLogin(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(mvcMatcherBuilder.pattern("/api/health")).permitAll()
                 .requestMatchers(mvcMatcherBuilder.pattern("/api/public/**")).permitAll()
@@ -48,9 +51,8 @@ public class SecurityConfig {
                 .requestMatchers(mvcMatcherBuilder.pattern("/api/auth/signup")).permitAll()
                 .anyRequest().authenticated()
             )
-            .oauth2Login(oauth2 -> oauth2
-                .successHandler(oAuth2SuccessHandler)
-            )
+            .exceptionHandling(exception -> exception.authenticationEntryPoint(jwtAuthenticationEntryPoint)) // Configure custom entry point
+            
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
             .addFilterBefore(requestIdFilter, CorsFilter.class) // Add RequestIdFilter before CorsFilter
             .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.sameOrigin()));

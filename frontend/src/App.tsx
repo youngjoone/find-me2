@@ -11,6 +11,7 @@ import AdminAnalytics from '@/pages/AdminAnalytics';
 import MyEntitlements from '@/pages/MyEntitlements';
 import AdminTests from '@/pages/AdminTests';
 import Signup from '@/pages/Signup';
+import Login from '@/pages/Login';
 import Header from '@/components/Header';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import '@/App.css';
@@ -34,6 +35,7 @@ function App() {
             <Route path="/me/entitlements" element={<MyEntitlements />} />
             <Route path="/admin/tests" element={<AdminTests />} /> {/* Add AdminTests route */}
             <Route path="/signup" element={<Signup />} />
+            <Route path="/login" element={<Login />} />
           </Routes>
         </main>
         <footer className="p-4 text-center text-sm text-muted-foreground border-t border-border">

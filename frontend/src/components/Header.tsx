@@ -14,32 +14,6 @@ const Header: React.FC = () => {
     setIsLoggedIn(!!token);
   }, []);
 
-  const handleLogin = async () => {
-    try {
-      const response = await fetch('http://localhost:8080/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username: 'testUser' }), // Use a dummy username for dev
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setTokens(data.token);
-        setIsLoggedIn(true);
-        navigate('/'); // Redirect to home or refresh
-      } else {
-        const errorData = await response.json();
-        console.error('Login failed:', errorData.message);
-        alert(`로그인 실패: ${errorData.message}`);
-      }
-    } catch (error) {
-      console.error('Network error during login:', error);
-      alert('네트워크 오류가 발생했습니다. 백엔드가 실행 중인지 확인해주세요.');
-    }
-  };
-
   const handleLogout = () => {
     clearTokens();
     setIsLoggedIn(false);
@@ -62,9 +36,6 @@ const Header: React.FC = () => {
         ) : (
           <>
             <Link to="/signup" className="hover:text-primary">회원가입</Link>
-            <Button variant="ghost" size="sm" onClick={handleLogin}>
-              로그인
-            </Button>
           </>
         )}
         <Button variant="ghost" size="sm" onClick={toggleTheme}>

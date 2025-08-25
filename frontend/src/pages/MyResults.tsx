@@ -4,6 +4,7 @@ import useApi from '@/hooks/useApi';
 import { Card, CardContent } from '@/components/ui/Card';
 import Skeleton from '@/components/ui/Skeleton';
 import EmptyState from '@/components/ui/EmptyState';
+import { getAccess } from '../lib/auth'; // Manually inserted this line
 
 interface ResultListItem {
     id: number;
@@ -21,25 +22,36 @@ const MyResults: React.FC = () => {
     const navigate = useNavigate(); // Initialize useNavigate
     const { fetchWithErrorHandler } = useApi(); // Use useApi hook
 
-    useEffect(() => {
-        const token = localStorage.getItem('jwtToken');
-        if (!token) {
-            navigate('/'); // Redirect to home if not logged in
-        }
-    }, [navigate]);
     const [results, setResults] = useState<ResultListItem[]>([]);
     const [nextPage, setNextPage] = useState<number>(0);
     const [hasMore, setHasMore] = useState<boolean>(true);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [error, setError] = useState<string>(''); // For API errors
 
+    // Get token from localStorage and update state
+    const [localJwtToken, setLocalJwtToken] = useState<string | null>(null);
+
+    useEffect(() => {
+        console.log('MyResults component mounted or dependencies changed.');
+        const token = getAccess();
+        setLocalJwtToken(token);
+        if (!token) { // Check if token exists
+            console.log('No token found, redirecting to home.');
+            navigate('/'); // Redirect to home if not logged in
+        } else {
+            console.log('Token found:', token.substring(0, 10) + '...');
+        }
+    }, [navigate]); // Removed localJwtToken from dependencies to avoid infinite loop
+
     const fetchResults = async (page: number) => {
+        console.log('fetchResults called for page:', page);
         setIsLoading(true);
         setError('');
         try {
             const data = await fetchWithErrorHandler<PaginatedResponse<ResultListItem>>(
                 `http://localhost:8080/api/results?page=${page}&size=10`
             );
+            console.log('fetchResults successful, data:', data);
             setResults(prev => [...prev, ...data.items]);
             if (data.nextCursor) {
                 setNextPage(parseInt(data.nextCursor));
@@ -47,20 +59,28 @@ const MyResults: React.FC = () => {
                 setHasMore(false);
             }
         } catch (err) {
+            console.error('fetchResults failed:', err);
             // Error handled by fetchWithErrorHandler, but we can set local error state if needed
             setError(err instanceof Error ? err.message : String(err));
             setHasMore(false); // Stop trying to load more on error
         } finally {
             setIsLoading(false);
+            console.log('fetchResults finished.');
         }
     };
 
     useEffect(() => {
-        fetchResults(0); // Load initial page
-    }, [fetchWithErrorHandler]);
+        console.log('fetchResults useEffect triggered. localJwtToken:', localJwtToken ? localJwtToken.substring(0, 10) + '...' : 'null');
+        if (localJwtToken) { // Only fetch if token is present
+            fetchResults(0); // Load initial page
+        } else {
+            console.log('localJwtToken is null, not fetching results.');
+        }
+    }, [fetchWithErrorHandler, localJwtToken]); // Add localJwtToken to dependencies
 
     const handleLoadMore = () => {
-        if (hasMore && !isLoading) {
+        console.log('handleLoadMore called. hasMore:', hasMore, 'isLoading:', isLoading, 'localJwtToken:', localJwtToken ? localJwtToken.substring(0, 10) + '...' : 'null');
+        if (hasMore && !isLoading && localJwtToken) { // Also check for token
             fetchResults(nextPage);
         }
     };

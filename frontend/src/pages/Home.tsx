@@ -109,9 +109,9 @@ const Home: React.FC = () => {
           </div>
         ) : (
           <div>
-            <a href="http://localhost:8080/oauth2/authorization/google">
-              <button>Google로 로그인</button>
-            </a>
+            <Link to="/login">
+              <button>로그인</button>
+            </Link>
           </div>
         )}
         <hr />

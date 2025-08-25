@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/components/ui/Card';
 import Skeleton from '@/components/ui/Skeleton';
 import EmptyState from '@/components/ui/EmptyState';
 import Meta from '@/lib/seo';
+import { getAccess } from '../lib/auth';
 
 interface EntitlementItem {
     itemCode: string;
@@ -15,27 +16,35 @@ const MyEntitlements: React.FC = () => {
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [error, setError] = useState<string>('');
 
+    const localJwtToken = getAccess(); // Get token here
+
     useEffect(() => {
+        console.log('MyEntitlements component mounted.');
         const fetchEntitlements = async () => {
+            console.log('fetchEntitlements called. localJwtToken:', localJwtToken ? localJwtToken.substring(0, 10) + '...' : 'null');
             setIsLoading(true);
             try {
                 const data = await fetchWithErrorHandler<EntitlementItem[]>(
-                    'http://localhost:8080/api/entitlements/me',
-                    {
-                        headers: {
-                            'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`,
-                        },
-                    }
+                    'http://localhost:8080/api/entitlements/me'
                 );
+                console.log('fetchEntitlements successful, data:', data);
                 setEntitlements(data);
             } catch (err) {
+                console.error('fetchEntitlements failed:', err);
                 setError(err instanceof Error ? err.message : String(err));
             } finally {
                 setIsLoading(false);
+                console.log('fetchEntitlements finished.');
             }
         };
-        fetchEntitlements();
-    }, [fetchWithErrorHandler]);
+        if (localJwtToken) { // Only fetch if token is present
+            fetchEntitlements();
+        } else {
+            console.log('No token found, not fetching entitlements.');
+            setIsLoading(false); // Stop loading if no token
+            setError('로그인이 필요합니다.'); // Set error message
+        }
+    }, [fetchWithErrorHandler, localJwtToken]); // Add localJwtToken to dependencies
 
     if (isLoading) {
         return (

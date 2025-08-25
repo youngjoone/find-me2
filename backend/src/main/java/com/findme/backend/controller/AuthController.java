@@ -1,6 +1,7 @@
 package com.findme.backend.controller;
 
 import com.findme.backend.service.AuthService;
+import com.findme.backend.dto.LoginRequest;
 import com.findme.backend.dto.SignupRequest;
 import com.findme.backend.entity.UserEntity;
 import com.findme.backend.util.JwtProvider;
@@ -39,26 +40,19 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> login(@RequestBody Map<String, String> request) {
-        String username = request.get("username");
-
-        if (username == null || username.isEmpty()) {
-            return ResponseEntity.badRequest().body(Collections.singletonMap("message", "Username cannot be empty"));
-        }
-
-        String userId = "testUser"; // Assuming a simple user for development
-        String role = "ROLE_USER"; // Assign a default role
+    public ResponseEntity<Map<String, String>> login(@Valid @RequestBody LoginRequest loginRequest) {
+        UserEntity user = authService.login(loginRequest);
 
         // Generate access token
-        String accessToken = jwtProvider.generateToken(userId);
+        String accessToken = jwtProvider.generateToken(user.getEmail()); // Use user's email as subject
 
         // Generate refresh token
-        String refreshToken = jwtProvider.generateRefreshToken(userId); // Assuming a new method in JwtProvider
-        LocalDateTime refreshTokenExpiresAt = jwtProvider.extractExpiration(refreshToken).toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime(); // Assuming extractExpiration method
+        String refreshToken = jwtProvider.generateRefreshToken(user.getEmail());
+        LocalDateTime refreshTokenExpiresAt = jwtProvider.extractExpiration(refreshToken).toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
 
         // Save refresh token to DB
         RefreshTokenEntity refreshTokenEntity = new RefreshTokenEntity();
-        refreshTokenEntity.setUserId(userId);
+        refreshTokenEntity.setUserId(user.getEmail()); // Use user's email as userId
         refreshTokenEntity.setToken(refreshToken);
         refreshTokenEntity.setExpiresAt(refreshTokenExpiresAt);
         refreshTokenRepository.save(refreshTokenEntity);

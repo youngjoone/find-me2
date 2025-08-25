@@ -1,5 +1,6 @@
 package com.findme.backend.service;
 
+import com.findme.backend.dto.LoginRequest;
 import com.findme.backend.dto.SignupRequest;
 import com.findme.backend.entity.UserEntity;
 import com.findme.backend.exception.BizException;
@@ -37,5 +38,15 @@ public class AuthService {
         user.setCreatedAt(LocalDateTime.now());
 
         return userRepository.save(user);
+    }
+
+    public UserEntity login(LoginRequest req) {
+        UserEntity user = userRepository.findByEmail(req.getEmail())
+                .orElseThrow(() -> new BizException("INVALID_CREDENTIALS", "Invalid email or password"));
+
+        if (!passwordEncoder.matches(req.getPassword(), user.getPasswordHash())) {
+            throw new BizException("INVALID_CREDENTIALS", "Invalid email or password");
+        }
+        return user;
     }
 }
