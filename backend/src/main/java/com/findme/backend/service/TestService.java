@@ -1,5 +1,6 @@
 package com.findme.backend.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.findme.backend.dto.*;
 import com.findme.backend.entity.Question;
 import com.findme.backend.entity.Test;
@@ -10,11 +11,14 @@ import com.findme.backend.repository.ResultRepository; // Import ResultRepositor
 import com.findme.backend.auth.CustomOAuth2User; // Import CustomOAuth2User
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.core.context.SecurityContextHolder; // Import SecurityContextHolder
 import org.springframework.security.core.Authentication; // Import Authentication
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +32,7 @@ public class TestService {
     private final TestRepository testRepository;
     private final QuestionRepository questionRepository;
     private final ResultRepository resultRepository;
+    private final ObjectMapper objectMapper;
 
     @PostConstruct
     @Transactional
@@ -45,6 +50,24 @@ public class TestService {
                     new Question("Q5", test, "나는 즉흥적인 활동을 즐긴다.", false)
             );
             questionRepository.saveAll(questions);
+        }
+
+        if (testRepository.findByCode("mbti_v1").isEmpty()) {
+            try {
+                InputStream inputStream = new ClassPathResource("seed/tests/mbti_v1.json").getInputStream();
+                MbtiTestDto mbtiTestDto = objectMapper.readValue(inputStream, MbtiTestDto.class);
+
+                Test test = new Test("mbti_v1", mbtiTestDto.getTitle(), mbtiTestDto.getVersion(), LocalDateTime.now());
+                testRepository.save(test);
+
+                List<Question> questions = mbtiTestDto.getQuestions().stream()
+                        .map(q -> new Question(String.valueOf(q.getNo()), test, q.getBody(), false))
+                        .collect(Collectors.toList());
+                questionRepository.saveAll(questions);
+
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to load mbti_v1.json", e);
+            }
         }
     }
 
@@ -114,5 +137,32 @@ public class TestService {
                 .map(q -> new QuestionDto(q.getId(), q.getBody()))
                 .collect(Collectors.toList());
         return new TestResponseDto(test.getCode(), test.getTitle(), questionDtos);
+    }
+
+    // Inner DTO classes for parsing JSON
+    private static class MbtiTestDto {
+        private String code;
+        private String title;
+        private int version;
+        private List<MbtiQuestionDto> questions;
+
+        public String getCode() { return code; }
+        public void setCode(String code) { this.code = code; }
+        public String getTitle() { return title; }
+        public void setTitle(String title) { this.title = title; }
+        public int getVersion() { return version; }
+        public void setVersion(int version) { this.version = version; }
+        public List<MbtiQuestionDto> getQuestions() { return questions; }
+        public void setQuestions(List<MbtiQuestionDto> questions) { this.questions = questions; }
+    }
+
+    private static class MbtiQuestionDto {
+        private int no;
+        private String body;
+
+        public int getNo() { return no; }
+        public void setNo(int no) { this.no = no; }
+        public String getBody() { return body; }
+        public void setBody(String body) { this.body = body; }
     }
 }

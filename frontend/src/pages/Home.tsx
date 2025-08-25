@@ -119,7 +119,9 @@ const Home: React.FC = () => {
         <br />
         <Link to="/my/results">내 결과 히스토리</Link>
         <br />
-        <Link to="/test">테스트 시작하기</Link>
+        <Link to="/test/trait_v1">테스트 시작하기</Link>
+        <br />
+        <Link to="/test/mbti_v1">mbti 테스트</Link>
         <hr />
         <div>
           <h2>E2E 테스트</h2>

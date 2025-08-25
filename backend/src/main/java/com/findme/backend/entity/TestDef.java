@@ -1,9 +1,12 @@
 package com.findme.backend.entity;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
 
@@ -29,11 +32,13 @@ public class TestDef {
     @Column(nullable = false)
     private String status; // DRAFT, PUBLISHED, ARCHIVED
 
-    @Column(columnDefinition = "CLOB") // For H2, TEXT in Postgres
-    private String questions; // JSON string
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "CLOB")
+    private JsonNode questions;
 
-    @Column(columnDefinition = "CLOB") // For H2, TEXT in Postgres
-    private String scoring; // JSON string
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "CLOB")
+    private JsonNode scoring;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;

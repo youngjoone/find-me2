@@ -25,7 +25,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/tests" element={<Tests />} />
-            <Route path="/test" element={<Test />} />
+            <Route path="/test/:testCode" element={<Test />} />
             <Route path="/result" element={<Result />} />
             <Route path="/auth/callback" element={<AuthCallback />} />
             <Route path="/my/results" element={<MyResults />} />

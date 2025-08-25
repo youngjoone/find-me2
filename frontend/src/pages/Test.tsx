@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import useApi from '@/hooks/useApi';
 import RadioLikert from '@/components/ui/FormControls/RadioLikert';
 import Button from '@/components/ui/Button';
@@ -44,14 +44,15 @@ const Test: React.FC = () => {
     const [formError, setFormError] = useState<string>('');
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const navigate = useNavigate();
+    const { testCode } = useParams<{ testCode: string }>();
 
     useEffect(() => {
-        track('test_start'); // Track test start event
+        track('test_start', { testCode }); // Track test start event
         const fetchTest = async () => {
             setIsLoading(true);
             try {
                 const data = await fetchWithErrorHandler<TestData>(
-                    'http://localhost:8080/api/tests/trait_v1'
+                    `http://localhost:8080/api/tests/${testCode}`
                 );
                 setTestData(data);
             } catch (err) {
@@ -60,8 +61,10 @@ const Test: React.FC = () => {
                 setIsLoading(false);
             }
         };
-        fetchTest();
-    }, [fetchWithErrorHandler]);
+        if (testCode) {
+            fetchTest();
+        }
+    }, [fetchWithErrorHandler, testCode]);
 
     const handleAnswerChange = (questionId: string, value: number) => {
         setAnswers(prev => ({ ...prev, [questionId]: value }));
@@ -76,7 +79,7 @@ const Test: React.FC = () => {
         
         setFormError(''); // Clear form validation error
         setIsLoading(true);
-        track('test_submit'); // Track test submit event
+        track('test_submit', { testCode }); // Track test submit event
 
         try {
             // 1. Submit answers to backend
@@ -86,7 +89,7 @@ const Test: React.FC = () => {
             }));
             
             const scoreData = await fetchWithErrorHandler<ScoreData>(
-                'http://localhost:8080/api/tests/trait_v1/submit',
+                `http://localhost:8080/api/tests/${testCode}/submit`,
                 {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },

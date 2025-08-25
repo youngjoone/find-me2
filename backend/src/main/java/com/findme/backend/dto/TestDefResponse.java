@@ -1,5 +1,6 @@
 package com.findme.backend.dto;
 
+import com.fasterxml.jackson.databind.JsonNode; // Import JsonNode
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,8 +16,8 @@ public class TestDefResponse {
     private int version;
     private String title;
     private String status;
-    private String questions; // JSON string
-    private String scoring; // JSON string
+    private JsonNode questions; // Change to JsonNode
+    private JsonNode scoring; // Change to JsonNode
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }
