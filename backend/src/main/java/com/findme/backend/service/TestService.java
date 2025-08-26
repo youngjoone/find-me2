@@ -52,7 +52,7 @@ public class TestService {
             questionRepository.saveAll(questions);
         }
 
-        if (testRepository.findByCode("mbti_v1").isEmpty()) {
+                if (testRepository.findByCode("mbti_v1").isEmpty()) {
             try {
                 InputStream inputStream = new ClassPathResource("seed/tests/mbti_v1.json").getInputStream();
                 MbtiTestDto mbtiTestDto = objectMapper.readValue(inputStream, MbtiTestDto.class);
@@ -67,6 +67,24 @@ public class TestService {
 
             } catch (IOException e) {
                 throw new RuntimeException("Failed to load mbti_v1.json", e);
+            }
+        }
+
+        if (testRepository.findByCode("teto_egen_v1").isEmpty()) {
+            try {
+                InputStream inputStream = new ClassPathResource("seed/tests/teto_egen_v1.json").getInputStream();
+                MbtiTestDto mbtiTestDto = objectMapper.readValue(inputStream, MbtiTestDto.class);
+
+                Test test = new Test("teto_egen_v1", mbtiTestDto.getTitle(), mbtiTestDto.getVersion(), LocalDateTime.now());
+                testRepository.save(test);
+
+                List<Question> questions = mbtiTestDto.getQuestions().stream()
+                        .map(q -> new Question(String.valueOf(q.getNo()), test, q.getBody(), false))
+                        .collect(Collectors.toList());
+                questionRepository.saveAll(questions);
+
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to load teto_egen_v1.json", e);
             }
         }
     }

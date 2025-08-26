@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import useApi from '@/hooks/useApi';
 import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/Card';
 import Badge from '@/components/ui/Badge';
@@ -7,6 +7,8 @@ import Button from '@/components/ui/Button';
 import Skeleton from '@/components/ui/Skeleton';
 import EmptyState from '@/components/ui/EmptyState';
 import Meta from '@/lib/seo';
+import { getAccess } from '../lib/auth';
+import { useToast } from '@/components/ui/ToastProvider';
 
 interface ResultDetailData {
     id: number;
@@ -23,8 +25,17 @@ const ResultDetail: React.FC = () => {
     const [result, setResult] = useState<ResultDetailData | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [error, setError] = useState<string>('');
+    const navigate = useNavigate();
+    const { addToast } = useToast();
 
     useEffect(() => {
+        const token = getAccess();
+        if (!token) {
+            addToast('로그인이 필요한 서비스입니다.', 'error');
+            navigate('/login');
+            return;
+        }
+
         const fetchResult = async () => {
             setIsLoading(true);
             try {
@@ -39,7 +50,7 @@ const ResultDetail: React.FC = () => {
             }
         };
         fetchResult();
-    }, [id, fetchWithErrorHandler]);
+    }, [id, fetchWithErrorHandler, addToast, navigate]);
 
     if (isLoading) {
         return (

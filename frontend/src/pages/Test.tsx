@@ -5,6 +5,8 @@ import RadioLikert from '@/components/ui/FormControls/RadioLikert';
 import Button from '@/components/ui/Button';
 import Meta from '@/lib/seo';
 import { track } from '@/lib/analytics';
+import { getAccess } from '@/lib/auth';
+import { useToast } from '@/components/ui/ToastProvider';
 
 // Define types for our data
 interface Question {
@@ -45,8 +47,16 @@ const Test: React.FC = () => {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const navigate = useNavigate();
     const { testCode } = useParams<{ testCode: string }>();
+    const { addToast } = useToast();
 
     useEffect(() => {
+        const token = getAccess();
+        if (!token) {
+            addToast('로그인이 필요한 서비스입니다.', 'error');
+            navigate('/login');
+            return;
+        }
+
         track('test_start', { testCode }); // Track test start event
         const fetchTest = async () => {
             setIsLoading(true);
@@ -64,7 +74,7 @@ const Test: React.FC = () => {
         if (testCode) {
             fetchTest();
         }
-    }, [fetchWithErrorHandler, testCode]);
+    }, [fetchWithErrorHandler, testCode, addToast, navigate]);
 
     const handleAnswerChange = (questionId: string, value: number) => {
         setAnswers(prev => ({ ...prev, [questionId]: value }));

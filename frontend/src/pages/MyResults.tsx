@@ -4,7 +4,8 @@ import useApi from '@/hooks/useApi';
 import { Card, CardContent } from '@/components/ui/Card';
 import Skeleton from '@/components/ui/Skeleton';
 import EmptyState from '@/components/ui/EmptyState';
-import { getAccess } from '../lib/auth'; // Manually inserted this line
+import { getAccess } from '../lib/auth';
+import { useToast } from '@/components/ui/ToastProvider';
 
 interface ResultListItem {
     id: number;
