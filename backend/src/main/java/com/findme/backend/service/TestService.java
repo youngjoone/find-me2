@@ -37,20 +37,7 @@ public class TestService {
     @PostConstruct
     @Transactional
     public void init() {
-        // Check if test already exists to prevent re-insertion on every app restart
-        if (testRepository.findByCode("trait_v1").isEmpty()) {
-            Test test = new Test("trait_v1", "성향 테스트 v1", 1, LocalDateTime.now());
-            testRepository.save(test);
-
-            List<Question> questions = List.of(
-                    new Question("Q1", test, "나는 새로운 사람들을 만나는 것을 즐긴다.", false),
-                    new Question("Q2", test, "나는 혼자 시간을 보내면 에너지가 고갈된다.", true), // Reverse
-                    new Question("Q3", test, "나는 대화의 중심에 있는 것을 좋아한다.", false),
-                    new Question("Q4", test, "나는 계획을 세우고 따르는 것을 선호한다.", false),
-                    new Question("Q5", test, "나는 즉흥적인 활동을 즐긴다.", false)
-            );
-            questionRepository.saveAll(questions);
-        }
+        
 
                 if (testRepository.findByCode("mbti_v1").isEmpty()) {
             try {

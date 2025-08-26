@@ -3,7 +3,7 @@ import Home from '@/pages/Home';
 import Test from '@/pages/Test';
 import Result from '@/pages/Result';
 import AuthCallback from '@/pages/AuthCallback';
-import Tests from '@/pages/Tests';
+
 import MyResults from '@/pages/MyResults';
 import ResultDetail from '@/pages/ResultDetail';
 import Share from '@/pages/Share';
@@ -24,7 +24,7 @@ function App() {
         <main className="container mx-auto p-4 flex-grow">
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/tests" element={<Tests />} />
+            
             <Route path="/test/:testCode" element={<Test />} />
             <Route path="/result" element={<Result />} />
             <Route path="/auth/callback" element={<AuthCallback />} />
