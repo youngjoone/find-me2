@@ -1,22 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTheme } from '@/contexts/ThemeContext';
 import Button from '@/components/ui/Button';
-import { setTokens, clearTokens, getAccess } from '../lib/auth'; // Import auth utilities
+import { useAuth } from '@/contexts/AuthContext';
 
 const Header: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  useEffect(() => {
-    const token = getAccess();
-    setIsLoggedIn(!!token);
-  }, []);
+  const { isLoggedIn, logout } = useAuth();
 
   const handleLogout = () => {
-    clearTokens();
-    setIsLoggedIn(false);
+    logout();
     navigate('/'); // Redirect to home or login page after logout
   };
 
@@ -35,6 +29,7 @@ const Header: React.FC = () => {
           </Button>
         ) : (
           <>
+            <Link to="/login" className="hover:text-primary">로그인</Link>
             <Link to="/signup" className="hover:text-primary">회원가입</Link>
           </>
         )}

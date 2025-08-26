@@ -102,18 +102,7 @@ const Home: React.FC = () => {
       />
       <div>
         <h1>홈 페이지</h1>
-        {userEmail ? (
-          <div>
-            <p>환영합니다, {userNickname || userEmail}님!</p>
-            <button onClick={handleLogout}>로그아웃</button>
-          </div>
-        ) : (
-          <div>
-            <Link to="/login">
-              <button>로그인</button>
-            </Link>
-          </div>
-        )}
+        
         <hr />
         <Link to="/my/results">내 결과 히스토리</Link>
         <br />

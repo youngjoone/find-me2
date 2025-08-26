@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { setTokens } from '../lib/auth';
+import { useAuth } from '@/contexts/AuthContext';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
 
@@ -10,6 +11,7 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,6 +21,7 @@ export default function Login() {
       const response = await axios.post(`${API_BASE}/auth/login`, { email, password });
       // Assuming the backend returns access and refresh tokens
       setTokens(response.data.accessToken, response.data.refreshToken);
+      login();
       alert('Login successful!'); // Replace with a proper toast notification
       navigate('/'); // Redirect to home page
     } catch (err: any) {
