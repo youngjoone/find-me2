@@ -11,6 +11,7 @@ from datetime import datetime, timedelta
 
 from schemas import GenerateRequest, GenerateResponse # Import all necessary models
 from service.openai_client import OpenAIClient # Import OpenAIClient
+from config import Config # Import Config class
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -19,7 +20,7 @@ logger = logging.getLogger(__name__)
 app = FastAPI()
 
 # Initialize OpenAIClient
-openai_client = OpenAIClient()
+openai_client = OpenAIClient(api_key=Config.OPENAI_API_KEY)
 
 # CORS settings
 origins = [
@@ -153,10 +154,10 @@ def health_check():
     return {"status": "ok"}
 
 @app.post("/ai/generate", response_model=GenerateResponse)
-def generate_poem(request: GenerateRequest = Body(...)):
+def generate_poem(request: Request, gen_req: GenerateRequest = Body(...)):
     try:
         # Call OpenAIClient to generate text
-        response = openai_client.generate_text(request)
+        response = openai_client.generate_text(gen_req, request.state.request_id)
         return response
     except ValueError as e:
         raise HTTPException(
@@ -164,6 +165,8 @@ def generate_poem(request: GenerateRequest = Body(...)):
             detail={"code": "INVALID_REQUEST", "message": str(e)}
         )
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail={"code": "GENERATION_ERROR", "message": f"시 생성 중 오류 발생: {e}"}

@@ -60,6 +60,17 @@ const Home: React.FC = () => {
 
   const handleGetPoem = async () => {
     try {
+      const requestBody = {
+        profile: {
+          traits: {}
+        },
+        mood: {
+          tags: ['기쁨'],
+          intensity: 50
+        },
+        want: ["poem"]
+      };
+
       const data = await fetchWithErrorHandler<{ poem: string }>(
         'http://localhost:8000/ai/generate',
         {
@@ -67,7 +78,7 @@ const Home: React.FC = () => {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ mood: '기쁨' }),
+          body: JSON.stringify(requestBody),
         }
       );
       setPoem(data.poem);
